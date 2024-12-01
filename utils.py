@@ -1,6 +1,6 @@
 from PIL import Image
 
-image = {"assistant": Image.open("images\\download.jpg"), "user": Image.open("images\\test_img.jpg")}
+image = {"assistant": Image.open("images/download.jpg"), "user": Image.open("images/test_img.jpg")}
 
 cases = {
     "case 1": ['''
