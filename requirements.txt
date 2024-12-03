@@ -5,5 +5,6 @@ duckduckgo-search
 anthropic>=0.3.0
 trubrics>=1.4.3
 anthropic
+streamlit-server-state
 streamlit-feedback
 langchain-community
