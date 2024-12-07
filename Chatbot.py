@@ -32,15 +32,20 @@ with col2:
     st.image("images/thumbsup.jpg", width=100)
 st.caption(r"🚀 A Streamlit 💗 chatbot ")
 
+def restart():
+    server_state["chat_messages"] = []
+    st.session_state.last_message = None
+    force_rerun_bound_sessions(key="chat_messages")
 
-# Initialize server state for chat messages
+    # Initialize server state for chat messages
 with server_state_lock["chat_messages"]:
     if "chat_messages" not in server_state:
-        server_state["chat_messages"] = []
+        restart()
 
 # Ensure session state for chat input
 if "last_message" not in st.session_state:
-    st.session_state.last_message = None  # Track the last submitted message
+    restart()
+    # st.session_state.last_message = None  # Track the last submitted message
 
 # Handle user input
 user_input = st.chat_input("Type a message")
@@ -66,7 +71,8 @@ def collect_data_for_download():
 
 # Download chat history
 def get_file_name():
-    return f"chat_{st.session_state.get('user_id', 'unknown')}_{st.session_state.get('case_selector', 'default')}_{datetime.datetime.now()}.txt"
+    # return f"chat_{st.session_state.get('user_id', 'unknown')}_{st.session_state.get('case_selector', 'default')}_{datetime.datetime.now()}.txt"
+    return f"{st.session_state.get('user_id', 'unknown')}_{st.session_state.get('case_selector', 'default')}_{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.txt"
 
 if server_state["chat_messages"]:
     with st.sidebar:
@@ -74,5 +80,10 @@ if server_state["chat_messages"]:
             label="Download chat as text",
             data=collect_data_for_download(),
             file_name=get_file_name(),
-            mime="text/txt"
+            mime="text/txt",
+            on_click=restart
         )
+
+
+        if st.sidebar.button("Clear chat"):
+            restart()
