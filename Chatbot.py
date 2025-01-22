@@ -95,7 +95,7 @@ col1, col2 = st.columns([3, 1])
 with col1:
     st.title("The 💗 Chatbot")
 with col2:
-    st.image(st.session_state.get("current_header_image", "images/thumbsup.jpg"), width=100)
+    st.image(st.session_state.get("current_header_image", "images/download_1.jpg"), width=100)
 st.caption(r"🚀 A Streamlit 💗 chatbot ")
 
 # Display chat messages
