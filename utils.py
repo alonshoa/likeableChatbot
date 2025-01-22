@@ -1,6 +1,17 @@
 from PIL import Image
 
-image = {"assistant": Image.open("images/download.jpg"), "user": Image.open("images/test_img.jpg")}
+# image = {"assistant": Image.open("images/download.jpg"), "user": Image.open("images/test_img.jpg")}
+image = {
+    "user": "path/to/user/avatar.jpg",
+    # "assistant": "path/to/default/assistant/avatar.jpg",
+    "user": Image.open("images/download.jpg"),
+    "default": Image.open("images/download_1.jpg"),
+    "assistant_case 1": Image.open("images/download_1.jpg"),
+    "assistant_case 2": Image.open("images/download_2.jpg"),
+    "header_case 1": Image.open("images/download_1.jpg"),
+    "header_case 2": Image.open("images/download_2.jpg"),
+    # Add more case-specific images as needed
+}
 
 cases = {
     "case 1": ['''
