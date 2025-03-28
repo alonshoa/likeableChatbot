@@ -62,6 +62,7 @@ def get_response(client: Union[OpenAI, anthropic.Anthropic],
         elif isinstance(client, anthropic.Anthropic):
              # response = client.messages.create(model="claude-3-5-sonnet-20241022", messages=messages,system=cases[st.session_state.case_selector],max_tokens=1024)
             response = client.messages.create(
+                # model="claude-3-5-sonnet-20241022",
                 model="claude-3-haiku-20240307",
                 messages=[msg for msg in messages if msg["role"] in ["user", "assistant"]],
                 system="".join(sys_messages),
@@ -90,18 +91,29 @@ with st.sidebar:
     st.selectbox("Select model vendor", options=["OpenAI", "Claude.ai"], on_change=change_model, key="model_selector")
     st.selectbox("Select case", options=list(cases.keys()), on_change=case_changed, key="case_selector")
 
+    uploaded_file = st.file_uploader("Upload a file", type=["txt"])
+    if uploaded_file is not None:
+        st.session_state["uploaded_file"] = uploaded_file
+        st.success(f"File '{uploaded_file.name}' uploaded successfully!")
+        if uploaded_file.name.endswith(".txt"):
+            file_content = uploaded_file.read().decode("utf-8")
+            st.session_state['system_messages'] = file_content.split("\n")
+
+
+
 # Main chat interface
 col1, col2 = st.columns([3, 1])
 with col1:
     st.title("The 💗 Chatbot")
-with col2:
-    st.image(st.session_state.get("current_header_image", "images/download_1.jpg"), width=100)
-st.caption(r"🚀 A Streamlit 💗 chatbot ")
+if "current_header_image" in st.session_state:
+    with col2:
+        st.image(st.session_state.get("current_header_image", "images/download_1.jpg"), width=100)
+# st.caption(r"🚀 A Streamlit 💗 chatbot ")
 
 # Display chat messages
 for msg in st.session_state.messages:
-    avatar = image["user"] if msg["role"] == "user" else st.session_state.get("current_assistant_avatar", image["default"])
-    st.chat_message(msg["role"], avatar=avatar).write(msg["content"])
+    # avatar = image["user"] if msg["role"] == "user" else st.session_state.get("current_assistant_avatar", image["default"])
+    st.chat_message(msg["role"]).write(msg["content"])
 
 # Handle user input
 if prompt := st.chat_input():
@@ -114,12 +126,12 @@ if prompt := st.chat_input():
         st.stop()
 
     st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user", avatar=image["user"]):
+    with st.chat_message("user"):
         st.write(prompt)
 
     msg = get_response(st.session_state.client, st.session_state.messages, st.session_state.system_messages)
     st.session_state.messages.append({"role": "assistant", "content": msg})
-    st.chat_message("assistant", avatar=st.session_state.get("current_assistant_avatar", image["default"])).write(msg)
+    st.chat_message("assistant").write(msg)
 
 # Download chat history
 if st.session_state.messages:
