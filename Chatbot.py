@@ -40,6 +40,9 @@ def change_model():
 # Update system messages when case selection changes
 def case_changed():
     case = st.session_state.case_selector
+    if case == "select the case before start":
+        return
+    
     st.session_state["system_messages"] = [prompt for prompt in cases[case]]
     st.session_state["messages"].append({"role": "assistant", "content": "Hi!"})
     st.session_state["current_assistant_avatar"] = image.get(f"assistant_{case}", image["default"])
@@ -90,7 +93,7 @@ with st.sidebar:
     st.text_input("API Key", key="chatbot_api_key", type="password")
     st.selectbox("Select model vendor", options=["OpenAI", "Claude.ai"], on_change=change_model, key="model_selector")
     st.selectbox("Select case", options=list(cases.keys()), on_change=case_changed, key="case_selector")
-
+    
     uploaded_file = st.file_uploader("Upload a file", type=["txt"])
     if uploaded_file is not None:
         st.session_state["uploaded_file"] = uploaded_file
@@ -107,7 +110,7 @@ with col1:
     st.title("The 💗 Chatbot")
 if "current_header_image" in st.session_state:
     with col2:
-        st.image(st.session_state.get("current_header_image", "images/download_1.jpg"), width=100)
+        st.image(st.session_state.get("current_header_image", "images/download_1.jpg"), width=100,)
 # st.caption(r"🚀 A Streamlit 💗 chatbot ")
 
 # Display chat messages

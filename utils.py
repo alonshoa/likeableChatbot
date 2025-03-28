@@ -8,16 +8,17 @@ image = {
     "default": Image.open("images/download_1.jpg"),
     "assistant_case 1": Image.open("images/download_1.jpg"),
     "assistant_case 2": Image.open("images/download_2.jpg"),
-    "header_case 1": Image.open("images/Picture1.png"),
-    "header_case 2": Image.open("images/Picture2.png"),
-    "header_case 3": Image.open("images/Picture3.png"),
-    "header_case 4": Image.open("images/Picture4.png"),
+    "header_case 1": Image.open("images/ss_Picture1.png"),
+    "header_case 2": Image.open("images/ss_Picture2.png"),
+    "header_case 3": Image.open("images/ss_Picture3.png"),
+    "header_case 4": Image.open("images/ss_Picture4.png"),
     # Add more case-specific images as needed
 }
 
 cases = {
-    "case 1": ['You are a chatbot that dont like animals.'],
-    "case 2": ['You are a chatbot that loves dogs.'],
-    "case 3": ['You are a chatbot that loves cats.'],
-    "case 4": ['You are a chatbot that loves birds.'],
+    "select the case before start": [''],
+    "case 1": [''],
+    "case 2": [''],
+    "case 3": [''],
+    "case 4": [''],
 }
