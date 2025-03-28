@@ -65,8 +65,9 @@ def get_response(client: Union[OpenAI, anthropic.Anthropic],
         elif isinstance(client, anthropic.Anthropic):
              # response = client.messages.create(model="claude-3-5-sonnet-20241022", messages=messages,system=cases[st.session_state.case_selector],max_tokens=1024)
             response = client.messages.create(
+                model="claude-3-7-sonnet-20250219",
                 # model="claude-3-5-sonnet-20241022",
-                model="claude-3-haiku-20240307",
+                # model="claude-3-haiku-20240307",
                 messages=[msg for msg in messages if msg["role"] in ["user", "assistant"]],
                 system="".join(sys_messages),
                 max_tokens=128
