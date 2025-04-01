@@ -2,6 +2,7 @@ import streamlit as st
 st.set_page_config(initial_sidebar_state="expanded")
 
 import datetime
+import re
 from typing import List, Dict, Union
 from openai import OpenAI
 import anthropic
@@ -44,10 +45,9 @@ def case_changed():
         return
     
     st.session_state["system_messages"] = [prompt for prompt in cases[case]]
-    st.session_state["messages"].append({"role": "assistant", "content": "Hi!"})
     st.session_state["current_assistant_avatar"] = image.get(f"assistant_{case}", image["default"])
     st.session_state["current_header_image"] = image.get(f"header_{case}", "images/thumbsup.jpg")
-    st.session_state["messages"] = [{"role": "assistant", "content": "Hi!"}]
+    st.session_state["messages"] = []
 
 # Generate response based on selected model (OpenAI or Claude)
 def get_response(client: Union[OpenAI, anthropic.Anthropic], 
@@ -63,14 +63,11 @@ def get_response(client: Union[OpenAI, anthropic.Anthropic],
             return response.choices[0].message.content
         # Handle Claude response generation
         elif isinstance(client, anthropic.Anthropic):
-             # response = client.messages.create(model="claude-3-5-sonnet-20241022", messages=messages,system=cases[st.session_state.case_selector],max_tokens=1024)
             response = client.messages.create(
                 model="claude-3-7-sonnet-20250219",
-                # model="claude-3-5-sonnet-20241022",
-                # model="claude-3-haiku-20240307",
                 messages=[msg for msg in messages if msg["role"] in ["user", "assistant"]],
                 system="".join(sys_messages),
-                max_tokens=128
+                max_tokens=4096,
             )
             return response.content[0].text
     except Exception as e:
@@ -84,6 +81,38 @@ def collect_data_for_download() -> str:
 
 def get_file_name() -> str:
     return f"chat_{st.session_state['user_id']}_{st.session_state.case_selector}_{datetime.datetime.now()}.txt"
+
+def parse_questions(text: str) -> List[str]:
+    questions = []
+    start = text.find("רשימת השאלות:")
+    if start == -1:
+        return questions  # Return empty list if the section is not found
+    
+    lines = text[start:].split('\n')[1:]  # Get lines after "רשימת השאלות:"
+    
+    for line in lines:
+        match = re.match(r'\d+\.\s*(.*)', line)  # Match lines that start with a number
+        if match:
+            questions.append(match.group(1).strip())
+        elif questions:  # Stop if a non-question line appears after starting
+            break
+    
+    return questions
+
+
+    
+
+@st.cache_data
+def update_sys_messages(file_content: str):
+    if file_content:
+        if "current_question" not in st.session_state:
+            st.session_state["questions"] = parse_questions(file_content)
+            st.session_state["current_question"] = -1
+        st.session_state['system_messages'] = file_content.split("\n")
+        st.session_state['system_messages'] = [msg for msg in st.session_state['system_messages'] if msg.strip()]
+        st.session_state['system_messages'] += [f"עוד לא התחלת לשאול שאלות"]
+        return st.session_state['system_messages'], st.session_state['questions']
+
 
 # Initialize session state
 initialize_session_state()
@@ -101,7 +130,10 @@ with st.sidebar:
         st.success(f"File '{uploaded_file.name}' uploaded successfully!")
         if uploaded_file.name.endswith(".txt"):
             file_content = uploaded_file.read().decode("utf-8")
-            st.session_state['system_messages'] = file_content.split("\n")
+            system_messages,questions = update_sys_messages(file_content)
+            if not "questions" in st.session_state:
+                st.session_state['system_messages'] = system_messages
+                st.session_state['questions'] = questions
 
 
 
@@ -136,6 +168,11 @@ if prompt := st.chat_input():
     msg = get_response(st.session_state.client, st.session_state.messages, st.session_state.system_messages)
     st.session_state.messages.append({"role": "assistant", "content": msg})
     st.chat_message("assistant").write(msg)
+    st.session_state["current_question"] += 1
+    if st.session_state["current_question"] < len(st.session_state['questions']):
+        st.session_state['system_messages'][-1]= f"{st.session_state['questions'][st.session_state['current_question']]}"
+    else:
+        st.session_state['system_messages'][-1]="נגמרו השאלות, תודה על השיחה!"
 
 # Download chat history
 if st.session_state.messages:
