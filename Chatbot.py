@@ -15,7 +15,7 @@ def initialize_session_state():
     if "messages" not in st.session_state:
         st.session_state["system_messages"] = cases["case 1"]
         st.session_state["current_assistant_avatar"] = image["assistant_case 1"]
-        st.session_state["messages"] = [{"role": "assistant", "content": "Hi!"}]
+        st.session_state["messages"] = []
         st.session_state["client"] = None
 
 # Handle model changes and API key validation
@@ -102,7 +102,6 @@ def parse_questions(text: str) -> List[str]:
 
     
 
-@st.cache_data
 def update_sys_messages(file_content: str):
     if file_content:
         if "current_question" not in st.session_state:
@@ -130,8 +129,8 @@ with st.sidebar:
         st.success(f"File '{uploaded_file.name}' uploaded successfully!")
         if uploaded_file.name.endswith(".txt"):
             file_content = uploaded_file.read().decode("utf-8")
-            system_messages,questions = update_sys_messages(file_content)
             if not "questions" in st.session_state:
+                system_messages,questions = update_sys_messages(file_content)
                 st.session_state['system_messages'] = system_messages
                 st.session_state['questions'] = questions
 
