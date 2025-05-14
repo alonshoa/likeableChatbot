@@ -53,11 +53,12 @@ def case_changed():
 def get_response(client: Union[OpenAI, anthropic.Anthropic], 
                 messages: List[Dict[str, str]], 
                 sys_messages: List[str]) -> str:
+    # return st.session_state['system_messages'][-1] if st.session_state['system_messages'] else "No system message available"
     try:
         # Handle OpenAI response generation
         if isinstance(client, OpenAI):
             response = client.chat.completions.create(
-                model="gpt-3.5-turbo",
+                model="gpt-4.1",
                 messages=[{"role": "system", "content": sys_msg} for sys_msg in sys_messages] + messages
             )
             return response.choices[0].message.content
@@ -120,7 +121,7 @@ initialize_session_state()
 with st.sidebar:
     st.text_input("User Id", key="user_id", type="default")
     st.text_input("API Key", key="chatbot_api_key", type="password")
-    st.selectbox("Select model vendor", options=["OpenAI", "Claude.ai"], on_change=change_model, key="model_selector")
+    st.selectbox("Select model vendor", options=["Choose a model","OpenAI", "Claude.ai"], on_change=change_model, key="model_selector")
     st.selectbox("Select case", options=list(cases.keys()), on_change=case_changed, key="case_selector")
     
     uploaded_file = st.file_uploader("Upload a file", type=["txt"])
