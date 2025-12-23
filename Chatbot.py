@@ -52,10 +52,10 @@ user_input = st.chat_input("Type a message")
 if user_input and user_input != st.session_state.last_message:
     # Update the last message to prevent duplicates
     st.session_state.last_message = user_input
-    
+    user_role = "user" if st.session_state.case_selector == "case 1" else "assistant"
     # Add new message to chat messages
     with server_state_lock["chat_messages"]:
-        new_message = {"role": user_id, "text": user_input}
+        new_message = {"role": user_role, "text": user_input}
         server_state["chat_messages"].append(new_message)
     force_rerun_bound_sessions(key="chat_messages")
 # Display chat messages
@@ -74,7 +74,7 @@ def get_file_name():
     # return f"chat_{st.session_state.get('user_id', 'unknown')}_{st.session_state.get('case_selector', 'default')}_{datetime.datetime.now()}.txt"
     return f"{st.session_state.get('user_id', 'unknown')}_{st.session_state.get('case_selector', 'default')}_{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.txt"
 
-if server_state["chat_messages"]:
+if server_state["chat_messages"] and st.session_state.case_selector == "case 2":
     with st.sidebar:
         st.download_button(
             label="Download chat as text",
